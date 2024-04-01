@@ -1,0 +1,7 @@
+"./Src/main.o"
+"./Src/syscalls.o"
+"./Src/sysmem.o"
+"./Src/toggle_led.o"
+"./Src/toggle_led_with_button.o"
+"./Startup/startup_stm32f334c8tx.o"
+"./drivers/Src/stm32f334xx_gpio_driver.o"
