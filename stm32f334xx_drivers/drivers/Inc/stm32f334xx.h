@@ -8,7 +8,10 @@
 #define INC_STM32F334XX_H_
 
 #include <stdint.h>
+#include <stddef.h>
+
 #define __vo volatile
+#define __weak __attribute__((weak))
 /***********************************************START:Processor Specific Details**********************************************************/
 /*
  * ARM Cortex Mx Processor NVIC ISERx Register Addresses
@@ -187,6 +190,18 @@ typedef struct
 
 }SYSCFG_RegDef_t;
 
+typedef struct
+{
+    __vo uint32_t SPIx_CR1;                                                                   // SPI control register 1                         Address offset: 0x00
+    __vo uint32_t SPIx_CR2;                                                                   // SPI control register 2                         Address offset: 0x04
+    __vo uint32_t SPIx_SR;                                                                    // SPI status register                            Address offset: 0x08
+    __vo uint32_t SPIx_DR;                                                                    // SPI data register                              Address offset: 0x0C
+    __vo uint32_t SPIx_CRCPR;                                                                 // SPI CRC polynomial register                    Address offset: 0x10
+    __vo uint32_t SPIx_RXCRCR;                                                                // SPI Rx CRC register                            Address offset: 0x14
+    __vo uint32_t SPIx_TXCRCR;                                                                // SPI Tx CRC register                            Address offset: 0x18
+
+}SPI_RegDef_t;
+
 /*
  * Peripheral definitions ( Peripheral base addresses typecasted to xxx_RegDef_t)
 */
@@ -199,6 +214,7 @@ typedef struct
 #define RCC                                             ( (RCC_RegDef_t*)    RCC_BASEADDR    )
 #define EXTI                                            ( (EXTI_RegDef_t*)   EXTI_BASEADDR   )
 #define SYSCFG                                          ( (SYSCFG_RegDef_t*) SYSCFG_BASEADDR )
+#define SPI1                                            ( (SPI_RegDef_t*)    SPI1_BASEADDR   )
 
 /*
  * Clock Enable Macros For GPIOx Peripherals
@@ -290,6 +306,7 @@ typedef struct
 #define IRQ_NO_EXTI4            10
 #define IRQ_NO_EXTI9_5          23
 #define IRQ_NO_EXTI15_10        40
+#define IRQ_NO_SPI1             35
 
 /*
  * Macros for the all the possible priority levels
@@ -310,7 +327,6 @@ typedef struct
 #define NVIC_IRQ_PRIO14         14
 #define NVIC_IRQ_PRIO15         15
 
-
 // Some Generic Macros
 #define ENABLE                  1
 #define DISABLE                 0
@@ -318,7 +334,63 @@ typedef struct
 #define RESET                   DISABLE
 #define GPIO_PIN_SET            SET
 #define GPIO_PIN_RESET          RESET
+#define FLAG_RESET              RESET
+#define FLAG_SET                SET
+
+/***************************************************************************
+ * Bit position definitions of SPI Peripheral
+****************************************************************************/
+/*
+ * Bit position definitions SPI_CR1
+*/
+#define SPI_CR1_CPHA            0
+#define SPI_CR1_CPOL            1
+#define SPI_CR1_MSTR            2
+#define SPI_CR1_BR              3
+#define SPI_CR1_SPE             6
+#define SPI_CR1_LSBFIRST        7
+#define SPI_CR1_SSI             8
+#define SPI_CR1_SSM             9
+#define SPI_CR1_RXONLY          10
+#define SPI_CR1_CRCL            11
+#define SPI_CR1_CRCNEXT         12
+#define SPI_CR1_CRCEN           13
+#define SPI_CR1_BIDIOE          14
+#define SPI_CR1_BIDIMODE        15
+
+/*
+ * Bit position definitions SPI_CR2
+*/
+#define SPI_CR2_RXDMAEN         0
+#define SPI_CR2_TXDMAEN         1
+#define SPI_CR2_SSOE            2
+#define SPI_CR2_NSSP            3
+#define SPI_CR2_FRF             4
+#define SPI_CR2_ERRIE           5
+#define SPI_CR2_RXNEIE          6
+#define SPI_CR2_TXEIE           7
+#define SPI_CR2_DS              8
+#define SPI_CR2_FRXTH           12
+#define SPI_CR2_LDMA_RX         13
+#define SPI_CR2_LDMA_TX         14
+
+/*
+ * Bit position definitions SPI_SR
+*/
+#define SPI_SR_RXNE             0
+#define SPI_SR_TXE              1
+#define SPI_SR_CRCERR           4
+#define SPI_SR_MODF             5
+#define SPI_SR_OVR              6
+#define SPI_SR_BSY              7
+#define SPI_SR_FRE              8
+#define SPI_SR_FRLVL            9
+#define SPI_SR_FTLVL            11
+
+
+
 
 #include "stm32f334xx_gpio_driver.h"
+#include "stm32f334xx_spi_driver.h"
 
 #endif  //INC_STM32F334XX_H_ 
