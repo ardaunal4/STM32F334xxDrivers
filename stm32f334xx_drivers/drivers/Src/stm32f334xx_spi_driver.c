@@ -75,7 +75,7 @@ void SPI_Init(SPI_Handle_t *pSPIHandle)
     // 2. Configure the bus config
     if(pSPIHandle->SPIConfig.SPI_BusConfig == SPI_BUS_CONFIG_FD)
     {
-        // BIDIMODE must be clearedz
+        // BIDIMODE must be cleared
         tempreg &= ~( 1 << SPI_CR1_BIDIMODE );
 
         // RXONLY bit must be cleared
@@ -108,7 +108,6 @@ void SPI_Init(SPI_Handle_t *pSPIHandle)
     tempreg |= ( pSPIHandle->SPIConfig.SPI_CPHA << SPI_CR1_CPHA);
 
     pSPIHandle->pSPIx->SPIx_CR1 = tempreg;
-
 }
 
 /*****************************************************************
@@ -123,15 +122,28 @@ void SPI_Init(SPI_Handle_t *pSPIHandle)
  * @Note        - None
  *
  *****************************************************************/
-void SPI_DeInit(SPI_RegDef_t *pSPIx)
+void SPI_DeInit(SPI_Handle_t *pSPIHandle)
 {
-
+    // Disable the SPI Peripheral
+    SPI_PeripheralControl(pSPIHandle->pSPIx, DISABLE);
+    
+    // Disable the SPI Peripheral clock
+    SPI_PeriClockControl(pSPIHandle->pSPIx, DISABLE);
 }
 
-/*
- * Data Send and Receive
-*/
-
+/*****************************************************************
+ * @fn          - SPI_GetFlagStatus
+ *
+ * @brief       - This function returns status of SPI flags
+ *
+ * @param[in]   - Base address of the SPI peripheral
+ * @param[in]   - Flag name
+ *
+ * @return      - Content of the input data
+ *
+ * @Note        - This is blocking call
+ *
+ *****************************************************************/
 uint8_t SPI_GetFlagStatus(SPI_RegDef_t *pSPIx, uint32_t FlagName)
 {
     if (pSPIx->SPIx_SR & FlagName)
@@ -146,11 +158,10 @@ uint8_t SPI_GetFlagStatus(SPI_RegDef_t *pSPIx, uint32_t FlagName)
 /*****************************************************************
  * @fn          - SPI_SendData
  *
- * @brief       - This function reads value of input pin, on
- *                a specific port
+ * @brief       - This function writes on to data register
  *
  * @param[in]   - Base address of the SPI peripheral
- * @param[in]   - Message to send
+ * @param[in]   - Message to send - 8 Bits!
  * @param[in]   - Message's length
  *
  * @return      - Content of the input data
@@ -175,8 +186,7 @@ void SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t Len)
 /*****************************************************************
  * @fn          - SPI_ReceiveData
  *
- * @brief       - This function reads value of input pin, on
- *                a specific port
+ * @brief       - This function reads data register
  *
  * @param[in]   - Base address of the SPI peripheral
  * @param[in]   - Message to receive
@@ -204,7 +214,7 @@ void SPI_ReceiveData(SPI_RegDef_t *pSPIx, uint8_t *pRxBuffer, uint32_t Len)
 /*****************************************************************
  * @fn          - SPI_PeripheralControl
  *
- * @brief       - This function initialize SPI peripherals
+ * @brief       - This function initialize SPI peripheral clock
  *
  * @param[in]   - Pointer to SPI Handle structure
  * @param[in]   - Enable or Disable
@@ -228,7 +238,8 @@ void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t EnorDi)
 /*****************************************************************
  * @fn          - SPI_SSIConfig
  *
- * @brief       - This function initialize SPI peripherals
+ * @brief       - This function makes NSS signal internally high
+ *                and avoids MODF error.
  *
  * @param[in]   - Pointer to SPI Handle structure
  * @param[in]   - Enable or Disable
@@ -252,7 +263,8 @@ void SPI_SSIConfig(SPI_RegDef_t *pSPIx, uint8_t EnorDi)
 /*****************************************************************
  * @fn          - SPI_SSOEConfig
  *
- * @brief       - This function initialize SPI peripherals
+ * @brief       - This function sets one master mode for SPI 
+ *                communication
  *
  * @param[in]   - Pointer to SPI Handle structure
  * @param[in]   - Enable or Disable
@@ -328,7 +340,7 @@ void SPI_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnorDi)
 /*****************************************************************
  * @fn          - SPI_IRQPriorityConfig
  *
- * @brief       - This function handle interrupts
+ * @brief       - This function configures priority of interrupts
  *
  * @param[in]   - IRQ Interrupt number
  * @param[in]   - IRQ priority level
@@ -397,7 +409,7 @@ void SPI_IRQHandling(SPI_Handle_t *pHandle)
 /*****************************************************************
  * @fn          - SPI_SendDataIT
  *
- * @brief       - This function handle interrupts
+ * @brief       - This function sends data through interrupt
  *
  * @param[in]   - SPI handle pointer
  *
@@ -432,7 +444,7 @@ uint8_t SPI_SendDataIT(SPI_Handle_t *pSPIHandle, uint8_t *pTxBuffer, uint32_t Le
 /*****************************************************************
  * @fn          - SPI_ReceiveDataIT
  *
- * @brief       - This function handle interrupts
+ * @brief       - This function reads data through interrupt
  *
  * @param[in]   - SPI handle pointer
  *
@@ -464,7 +476,9 @@ uint8_t SPI_ReceiveDataIT(SPI_Handle_t *pSPIHandle, uint8_t *pRxBuffer, uint32_t
     return state;
 }
 
-// Some helper function implementations
+/**********************************************************************
+*************** Some helper function implementations ******************
+***********************************************************************/
 static void spi_txe_interrupt_handle(SPI_Handle_t *pSPIHandle)
 {
     pSPIHandle->pSPIx->SPIx_DR = *pSPIHandle->pTxBuffer;
@@ -504,9 +518,9 @@ static void spi_ovr_err_interrupt_handle(SPI_Handle_t *pSPIHandle)
     uint8_t temp = 0;
 
     // 1. Clear the ovr flag
-    if ( pSPIHandle->TxStatus != SPI_BUSY_IN_TX )
+    if( pSPIHandle->TxStatus != SPI_BUSY_IN_TX )
     {
-        SPI_ClearOVRFlag(pSPIHandle->pSPIx);
+        SPI_ClearOVRFlag( pSPIHandle->pSPIx );
     }
 
     (void) temp;
@@ -517,7 +531,7 @@ static void spi_ovr_err_interrupt_handle(SPI_Handle_t *pSPIHandle)
 
 void SPI_CloseTransmission(SPI_Handle_t *pSPIHandle)
 {
-    pSPIHandle->pSPIx->SPIx_CR2 &= ~( 1 << SPI_CR2_TXEIE );
+    pSPIHandle->pSPIx->SPIx_CR2 &= ~( 1 << SPI_CR2_TXEIE );                // This prevents interrupts from setting up of TXE flag
     pSPIHandle->pTxBuffer = NULL;
     pSPIHandle->TxLen = 0;
     pSPIHandle->TxStatus = SPI_READY;
@@ -542,5 +556,4 @@ void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx)
 __weak void SPI_ApplicationEventCallback(SPI_Handle_t *pSPIHandle, uint8_t AppEv)
 {
     // This is a weak implementation. The application may override this function.
-
 }
