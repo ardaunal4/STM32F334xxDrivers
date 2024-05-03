@@ -1,16 +1,17 @@
-/*
- * spi_rx_IRQ_testing.c
- *
- *  Created on: Apr 14, 2024
- *      Author: ardau
- */
+// /*
+//  * spi_rx_tx_testing.c
+//  *
+//  *  Created on: May 1, 2024
+//  *      Author: ardau
+//  */
+
 
 // #include "stm32f334xx.h"
 // #include <string.h>
 
 // #define NACK       					0xA5U
 // #define ACK        					0xF5U
-// #define COMMAND_LED_CTRL      		0x50U
+// #define COMMAND_LED_CTRL      		0x40U
 
 // /*
 //  * SPI1_NSS  -> PA4
@@ -35,34 +36,44 @@
 // 	SPI1_GPIOInits();          
 // 	SPI1_Inits();               
 // 	SPI_SSOEConfig(SPI1, ENABLE);
+// 	SPI_IRQInterruptConfig(IRQ_NO_SPI1, ENABLE);
 
-// 	uint8_t command = 0, data[2] = {}, ack = ACK, nack = NACK;
+// 	uint8_t command = 0, data1, data2, ack = ACK, nack = NACK;
 
 //     while(1)
 // 	{	
 // 		SPI_PeripheralControl(SPI1, ENABLE);
+		
+// 		SPI_SendData(SPI1, &dummy_write, 1);
+// 		SPI_ReceiveData(SPI1, &command, 1);
 
-// 		while( !GPIO_ReadFromInputPin(GPIOB, GPIO_PIN_NO_9) )
+// 		while( !GPIO_ReadFromInputPin(GPIOB, GPIO_PIN_NO_6) )
 // 		{
-// 			SPI_SendData(SPI1, &dummy_write, 1);
-// 			SPI_ReceiveData(SPI1, &command, 1);
 			
 // 			if( command == COMMAND_LED_CTRL )
 // 			{
 // 				SPI_SendData(SPI1, &ack, 1);
 // 				SPI_ReceiveData(SPI1, &dummy_read, 1);
 
-// 				for(uint8_t i = 0; i < 2; i++)
-// 				{
-// 					SPI_SendData(SPI1, &dummy_write, 1);
-// 					SPI_ReceiveData(SPI1, data + i, 1);
-// 				}
+// 				delay();
 
-// 				ledFunction(data[0], data[1]);
-// 			}else if( command == NACK )			
+
+// 				SPI_SendData(SPI1, &dummy_write, 1);
+// 				SPI_ReceiveData(SPI1, &data1, 1);
+
+// 				SPI_SendData(SPI1, &dummy_write, 1);
+// 				SPI_ReceiveData(SPI1, &data2, 1);
+
+
+// 				ledFunction(data1, data2);
+
+// 			}else		
 // 			{
 // 				SPI_SendData(SPI1, &nack, 1);
 // 				SPI_ReceiveData(SPI1, &dummy_read, 1);
+
+// 				SPI_SendData(SPI1, &dummy_write, 1);
+// 				SPI_ReceiveData(SPI1, &command, 1);
 // 			}
 // 		}		
 		
@@ -106,9 +117,9 @@
 // 	SPI1Handle.pSPIx                    = SPI1;
 // 	SPI1Handle.SPIConfig.SPI_BusConfig  = SPI_BUS_CONFIG_FD;
 // 	SPI1Handle.SPIConfig.SPI_DeviceMode = SPI_DEVICE_MODE_SLAVE;
-// 	SPI1Handle.SPIConfig.SPI_SclkSpeed  = SPI_SCLK_SPEED_DIV2;              // Generates sclk of 8MHz
+// 	SPI1Handle.SPIConfig.SPI_SclkSpeed  = SPI_SCLK_SPEED_DIV32;              // Generates sclk of 0.5MHz
 // 	SPI1Handle.SPIConfig.SPI_CPHA       = SPI_CPHA_LOW;
-// 	SPI1Handle.SPIConfig.SPI_CPOL       = SPI_CPOL_HIGH;
+// 	SPI1Handle.SPIConfig.SPI_CPOL       = SPI_CPOL_LOW;
 // 	SPI1Handle.SPIConfig.SPI_SSM        = SPI_SSM_DI;                       // Hardware slave management enabled for NSS pin
 
 // 	SPI_Init(&SPI1Handle);
@@ -157,15 +168,4 @@
 
 // 	GPIOLed.GPIO_PinConfig.GPIO_PinNumber       = GPIO_PIN_NO_9; 
 // 	GPIO_Init(&GPIOLed);                                      
-// }
-
-// uint8_t SPI_VerifyResponse(uint8_t ackbyte)
-// {
-// 	if(ackbyte == (uint8_t)0xF5)
-// 	{
-// 		//ack
-// 		return 1;
-// 	}
-
-// 	return 0;
 // }

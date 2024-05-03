@@ -1,12 +1,19 @@
+/*
+ * usart_tx_testing.c
+ *
+ *  Created on: May 3, 2024
+ *      Author: ardau
+ */
+/*
 #include "stm32f334xx.h"
 #include <string.h>
-
+*/
 /*
  * USART1_TX  -> PA9
  * USART1_RX  -> PA10
  * Alternate functionality is AF7
  */
-
+/*
 USART_Handle_t usart1_handle;
 void USART1_GPIOInits(void);
 void USART1_Inits(void);
@@ -33,16 +40,16 @@ int main(void)
 		//wait till button is pressed
 		while( ! GPIO_ReadFromInputPin(GPIOA, GPIO_PIN_NO_0) );
 		delay();
-		
+
 		USART_SendData(&usart1_handle, (uint8_t*)message, strlen(message) );
-		while( !USART_GetFlagStatus(USART1, USART_FLAG_TC) );        
+		while( !USART_GetFlagStatus(USART1, USART_FLAG_TC) );
 	}
 }
 
 void USART1_GPIOInits(void)
 {
 	GPIO_Handle_t USART1Pins;
-    memset(&USART1Pins, 0, sizeof(USART1Pins)); 
+    memset(&USART1Pins, 0, sizeof(USART1Pins));
 
 	USART1Pins.pGPIOx = GPIOA;
 	USART1Pins.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALTFN;
@@ -91,3 +98,4 @@ void delay(void)
 {
 	for (int i = 0; i < 50000; i++);
 }
+*/
